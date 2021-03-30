@@ -1,0 +1,14 @@
+- include_tasks: dcpromote.yml
+  when: dcpromote|default(False)==True
+
+- include_tasks: adconfig2.yml
+  when: adconfig2|default(False)==True
+
+- include_tasks: cert_authority.yml
+  when: cert_authority|default(False)==True
+
+- include_tasks: changepassword.yml
+  when: changepassword|default(False)==True
+
+- include_tasks: test.yml
+  when: test|default(False)==True
