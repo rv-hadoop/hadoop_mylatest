@@ -1,0 +1,33 @@
+
+---
+
+- name: test1
+  shell: |
+     hostname -s;mkdir -p /tmp/scanid_tmp;
+
+- name: test2
+  shell: |
+      ip a | grep -oE "\b([0-9]{1,3}\.){3}[0-9]{1,3}\b" | grep -v ".255" | grep -v "127.0.0.1" | grep -v "255."
+
+- name: test3
+  shell: |
+       cat /etc/passwd | grep -v /sbin/nologin|grep -v /sbin/shutdown|grep -v /bin/sync|grep -v /sbin/halt|awk -F ':' '{ print $1 }' > /tmp/scanid_tmp/lusers; cat /tmp/scanid_tmp/lusers;
+
+- name: test4
+  shell: |
+       for i in `cat /tmp/scanid_tmp/lusers`;do grep $i /etc/sudoers|grep -v '#'|grep -v '%'|grep -v swatchd && echo $i' read/write' || echo $i 'read';done;
+
+- name: test5
+  shell: |
+      for i in `cat /tmp/scanid_tmp/lusers`;do groups $i|awk -F ':' '{ print $2 }' > /tmp/scanid_tmp/lgrp;cat /tmp/scanid_tmp/lgrp|awk '{for(y=1;y<=NF;y++) print $y}' 1> /tmp/scanid_tmp/lgrp2;for x in `cat /tmp/scanid_tmp/lgrp2`;do grep $x /etc/sudoers|grep -v '#'|grep -v '%'|grep -v swatchd && echo $i'-'$x' read/write' || echo $i'-'$x' read';done;done;
+
+- name: test6
+  shell: |
+        ls -1 /etc/sudoers.d > /tmp/scanid_tmp/lsudo;for x in `cat /tmp/scanid_tmp/lsudo`;do cat /etc/sudoers.d/$x ;done;
+
+- name: test6
+  shell: |
+        for i in `cat /tmp/scanid_tmp/lusers`;do last | grep $i > /tmp/scanid_tmp/last1;head -n1 /tmp/scanid_tmp/last1 | awk '{ print $5" "$6 }' > /tmp/scanid_tmp/last2; echo $i `cat /tmp/scanid_tmp/last2`; done;
+  register: x
+
+- debug: var=x     
